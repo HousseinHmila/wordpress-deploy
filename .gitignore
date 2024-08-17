@@ -1,0 +1,12 @@
+
+
+# Ignore the .terraform directory and its contents in the /src/ directory
+/src/.terraform/*
+/src/.terraform*
+/src/kubeconfig*
+# Ignore any hidden files related to .terraform in the /src/ directory
+/src/.terraform.*
+/src/terraform.*
+
+# Ignore all .tfvars files in the /src/ directory
+/src/*.tfvars
