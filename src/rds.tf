@@ -34,19 +34,4 @@ resource "aws_iam_role_policy_attachment" "rds_s3_policy" {
   role       = aws_iam_role.rds_s3_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
-resource "null_resource" "restore_from_s3" {
-  depends_on = [aws_db_instance.example]
 
-  provisioner "local-exec" {
-    command = <<EOT
-      aws rds restore-db-instance-from-s3 \
-        --db-instance-identifier ${aws_db_instance.example.id} \
-        --s3-bucket-name ${var.s3_bucket_name} \
-        --s3-ingestion-role-arn ${aws_iam_role.rds_s3_role.arn} \
-        --source-engine mysql \
-        --source-engine-version 8.0 \
-        --no-multi-az \
-        --s3-prefix ${var.s3_object_key}
-    EOT
-  }
-}

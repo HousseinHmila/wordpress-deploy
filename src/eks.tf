@@ -82,42 +82,8 @@ data "aws_eks_cluster" "example" {
   name = aws_eks_cluster.example.name
 }
 
-data "aws_eks_cluster_auth" "example" {
-  name = aws_eks_cluster.example.name
-}
-
-# Construct the Kubeconfig
-resource "local_file" "kubeconfig" {
-  content = templatefile("${path.module}/kubeconfig.tpl", {
-    cluster_name = data.aws_eks_cluster.example.name
-    endpoint     = data.aws_eks_cluster.example.endpoint
-    cert_data    = data.aws_eks_cluster.example.certificate_authority[0].data
-    token        = data.aws_eks_cluster_auth.example.token
-  })
-  filename = "${path.module}/kubeconfig"
-}
 
 
-# Output the Kubeconfig file content
-output "kubeconfig" {
-  value     = local_file.kubeconfig.content
-  sensitive = true # Marking it as sensitive to prevent accidental exposure
-}
-
-# ArgoCD Deployment using kubectl apply
-resource "null_resource" "deploy_argocd" {
-  provisioner "local-exec" {
-    command = <<EOT
-      kubectl create namespace argocd && \
-      kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml && \
-      kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
-      EOT
 
 
-    environment = {
-      KUBECONFIG = "${path.module}/kubeconfig" # Adjust the path to your kubeconfig file if necessary
-    }
-  }
 
-  depends_on = [aws_eks_cluster.example]
-}
