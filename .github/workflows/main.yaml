@@ -7,11 +7,12 @@ on:
 
 permissions:
   id-token: write
-  contents: read # This is usually required to access your repository
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,24 +24,36 @@ jobs:
           role-to-assume: arn:aws:iam::010526256256:role/oidc_role
           audience: sts.amazonaws.com
 
-      #- name: Run Terraform
-      #  run: |
-      #    cd src
-      #    terraform init
-      #    terraform apply -auto-approve
       - name: Install kubectl
         run: |
-          curl -LO "https://dl.k8s.io/release/v1.25.0/bin/linux/amd64/kubectl"
+          curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           sudo mv ./kubectl /usr/local/bin/kubectl
 
+      - name: Check kubectl version
+        run: kubectl version --client
+
+      - name: Check AWS CLI version
+        run: aws --version
+
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --name poly-cluster  # Replace with your cluster name
+          aws eks update-kubeconfig --name poly-cluster
+          kubectl config get-contexts
+          kubectl config current-context
+
+      - name: Print kubeconfig
+        run: cat ~/.kube/config
 
       - name: Deploy to EKS
         run: |
-          kubectl create namespace argocd
+          kubectl create namespace argocd || echo "Namespace already exists"
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
           kubectl apply -f kube_manifest/argo_secret_auth.yaml
           kubectl apply -f kube_manifest/argo_config.yaml
+
+        #- name: Run Terraform
+        #  run: |
+        #    cd src
+        #    terraform init
+        #    terraform apply -auto-approve
