@@ -72,7 +72,10 @@ resource "aws_iam_role_policy_attachment" "eks_policy" {
   role       = aws_iam_role.eks_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
-
+resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
+  role       = aws_iam_role.eks_node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
 resource "aws_security_group" "eks_sg" {
   name        = "example-eks-sg"
   description = "Allow communication for EKS"
@@ -84,6 +87,23 @@ data "aws_eks_cluster" "example" {
 
 
 
+resource "aws_security_group_rule" "eks_node_inbound" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "eks_node_outbound" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]
+}
 
 
 

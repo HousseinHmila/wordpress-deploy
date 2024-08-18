@@ -49,11 +49,8 @@ variable "subnet_ids" {
     "subnet-0f107057109be1a5a",
   ]
 }
-variable "s3_bucket_name" {
-  description = "Name of the S3 bucket"
-  default     = "woedpress-snapshot"
-}
-variable "s3_object_key" {
-  description = "Key of the S3 object"
-  default     = "woedpress-snapshot-s3"
+variable "snapshot_identifier" {
+  description = "Snapshot identifier"
+  default     = "wordpress-snapshot"
+  
 }
