@@ -44,6 +44,15 @@ jobs:
           # Verify the current context
           kubectl config get-contexts
           kubectl config current-context
+      - name: display config
+        run: |
+          cat ~/.kube/config
+      - name: Install ArgoCD
+        run: |
+          kubectl create namespace argocd
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+          kubectl apply -f kube_manifest/argo_secret_auth.yaml
+          kubectl apply -f kube_manifest/argo_config.yaml
 
       - name: Create GitHub access entry if not exists
         run: |
