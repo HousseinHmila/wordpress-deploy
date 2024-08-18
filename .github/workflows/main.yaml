@@ -31,6 +31,12 @@ jobs:
           terraform init
           terraform apply -auto-approve
 
+      - name: Upload Terraform state
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-state
+          path: src/terraform.tfstate
+
       - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
@@ -45,30 +51,56 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-          # Update kubeconfig to use the correct context
           aws eks update-kubeconfig --name poly-cluster
-
-          # Verify the current context
           kubectl config get-contexts
           kubectl config current-context
-      - name: display config
-        run: |
-          cat ~/.kube/config
+
+      - name: Display kubeconfig
+        run: cat ~/.kube/config
+
       - name: Deploy S3 pod
-        run: |
-          kubectl apply -f kube_manifest/s3_pod.yaml
+        run: kubectl apply -f kube_manifest/s3_pod.yaml
+
       - name: Install ArgoCD
         run: |
           kubectl apply -f kube_manifest/ns.yaml
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
           kubectl apply -f kube_manifest/argo_secret_auth.yaml
           kubectl apply -f kube_manifest/argo_config.yaml
-      - name: setup argocd svc
+
+      - name: Setup ArgoCD service
         run: |
           kubectl patch svc argocd-server -n argocd --type='json' -p='[{"op": "replace", "path": "/spec/type", "value": "NodePort"}]'
           kubectl get svc argocd-server -n argocd
-      - name: Destroy Terraform resources
-        if: github.event_name == 'workflow_dispatch'
+
+  destroy:
+    runs-on: ubuntu-latest
+    needs: deploy # Ensure the destroy job runs after the deploy job
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: eu-north-1
+          role-to-assume: ${{ secrets.OIDC_ROLE }}
+          audience: sts.amazonaws.com
+
+      - name: Download Terraform state
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform-state
+          path: src/
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Destroy Infrastructure
         run: |
           cd src
           terraform init

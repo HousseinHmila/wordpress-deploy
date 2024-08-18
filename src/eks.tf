@@ -27,7 +27,7 @@ resource "aws_eks_node_group" "example" {
 
 # IAM Roles and Policies for EKS
 resource "aws_iam_role" "eks_role" {
-  name = "example-eks-role"
+  name = "eks-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -79,7 +79,7 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 resource "aws_security_group" "eks_sg" {
-  name        = "example-eks-sg"
+  name        = "eks-sg"
   description = "Allow communication for EKS"
   vpc_id      = var.vpc_id
 }

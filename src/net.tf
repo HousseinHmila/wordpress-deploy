@@ -1,10 +1,10 @@
 resource "aws_db_subnet_group" "example" {
-  name       = "example-db-subnet-group"
+  name       = "db-subnet-group"
   subnet_ids = var.subnet_ids
 }
 
 resource "aws_security_group" "rds_sg" {
-  name        = "example-rds-sg"
+  name        = "rds-sg"
   description = "Allow communication for RDS"
 
   vpc_id = var.vpc_id
