@@ -58,7 +58,7 @@ jobs:
           fi
       - name: associate access policies with access entry
         run: |
-          aws eks associate-access-policy --cluster-name poly-cluster ${{secrets.OIDC_ROLE}}  --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy
+          aws eks associate-access-policy --cluster-name poly-cluster --principal-arn ${{secrets.OIDC_ROLE}}  --access-scope type=cluster --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy
 
       - name: Deploy to EKS
         run: |
