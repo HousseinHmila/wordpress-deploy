@@ -49,7 +49,7 @@ jobs:
           cat ~/.kube/config
       - name: Install ArgoCD
         run: |
-          kubectl create namespace argocd
+          kubectl apply -f kube_manifest/ns.yaml
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
           kubectl apply -f kube_manifest/argo_secret_auth.yaml
           kubectl apply -f kube_manifest/argo_config.yaml
