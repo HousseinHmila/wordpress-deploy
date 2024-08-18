@@ -41,10 +41,6 @@ jobs:
           # Update the cluster's authentication mode to API_AND_CONFIG_MAP
           aws eks update-cluster-config --name poly-cluster --access-config authenticationMode=API_AND_CONFIG_MAP
 
-
-          # Update kubeconfig to use the correct context
-          aws eks update-kubeconfig --name poly-cluster
-
           # Verify the current context
           kubectl config get-contexts
           kubectl config current-context
