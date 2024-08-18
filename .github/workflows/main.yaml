@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -23,6 +24,12 @@ jobs:
           aws-region: eu-north-1
           role-to-assume: ${{ secrets.OIDC_ROLE }}
           audience: sts.amazonaws.com
+
+      - name: Run Terraform
+        run: |
+          cd src
+          terraform init
+          terraform apply -auto-approve
 
       - name: Install kubectl
         run: |
@@ -47,15 +54,22 @@ jobs:
       - name: display config
         run: |
           cat ~/.kube/config
+      - name: Deploy S3 pod
+        run: |
+          kubectl apply -f kube_manifest/s3_pod.yaml
       - name: Install ArgoCD
         run: |
           kubectl apply -f kube_manifest/ns.yaml
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
           kubectl apply -f kube_manifest/argo_secret_auth.yaml
           kubectl apply -f kube_manifest/argo_config.yaml
-
-        #- name: Run Terraform
-        #  run: |
-        #    cd src
-        #    terraform init
-        #    terraform apply -auto-approve
+      - name: setup argocd svc
+        run: |
+          kubectl patch svc argocd-server -n argocd --type='json' -p='[{"op": "replace", "path": "/spec/type", "value": "NodePort"}]'
+          kubectl get svc argocd-server -n argocd
+      - name: Destroy Terraform resources
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd src
+          terraform init
+          terraform destroy -auto-approve

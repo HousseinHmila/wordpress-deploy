@@ -4,7 +4,7 @@ resource "aws_eks_cluster" "example" {
   role_arn = aws_iam_role.eks_role.arn
   version  = "1.30"
   vpc_config {
-    subnet_ids = var.subnet_ids
+    subnet_ids         = var.subnet_ids
     security_group_ids = [aws_security_group.eks_sg.id]
   }
 }
@@ -14,7 +14,7 @@ resource "aws_eks_node_group" "example" {
   node_group_name = "worker-node"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = var.subnet_ids
-  instance_types  = ["t3.micro"]
+  instance_types  = ["t3.medium"]
   capacity_type   = "ON_DEMAND"
 
   scaling_config {
@@ -105,29 +105,5 @@ resource "aws_security_group_rule" "eks_node_outbound" {
 }
 
 
-resource "kubernetes_config_map" "aws_auth" {
-  depends_on = [
-    aws_eks_cluster.example,
-    aws_eks_node_group.example
-  ]
 
-  metadata {
-    name      = "aws-auth"
-    namespace = "kube-system"
-  }
-
-  data = {
-    "mapRoles" = <<EOF
-- rolearn: arn:aws:iam::010526256256:role/eks-node-role
-  username: system:node:{{EC2PrivateDNSName}}
-  groups:
-    - system:bootstrappers
-    - system:nodes
-- rolearn: arn:aws:iam::010526256256:role/oidc_role
-  username: github-actions
-  groups:
-    - system:masters
-EOF
-  }
-}
 
