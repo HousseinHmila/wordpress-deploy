@@ -19,7 +19,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-region: us-west-2
+          aws-region: eu-north-1
           role-to-assume: arn:aws:iam::010526256256:role/oidc_role
           audience: sts.amazonaws.com
 
