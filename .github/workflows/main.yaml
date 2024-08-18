@@ -47,15 +47,16 @@ jobs:
 
       - name: Create GitHub access entry if not exists
         run: |
-            # Check if the access entry already exists
-            ENTRY_EXISTS=$(aws eks list-access-entries --cluster-name poly-cluster --query 'entries[?principalArn==`'${{ secrets.OIDC_ROLE }}`]' --output text)
-  
-            if [ -z "$ENTRY_EXISTS" ]; then
-              echo "Creating new access entry..."
-              aws eks create-access-entry --cluster-name poly-cluster --principal-arn ${{ secrets.OIDC_ROLE }} --username github-actions --kubernetes-groups masters
-            else
-              echo "Access entry already exists. Skipping creation."
-            fi
+          # Check if the access entry already exists
+          ENTRY_EXISTS=$(aws eks list-access-entries --cluster-name poly-cluster --query "entries[?principalArn=='${{ secrets.OIDC_ROLE }}']" --output text)
+
+          if [ -z "$ENTRY_EXISTS" ]; then
+            echo "Creating new access entry..."
+            aws eks create-access-entry --cluster-name poly-cluster --principal-arn ${{ secrets.OIDC_ROLE }} --username github-actions --kubernetes-groups masters
+          else
+            echo "Access entry already exists. Skipping creation."
+          fi
+
       - name: Deploy to EKS
         run: |
           kubectl create namespace argocd
