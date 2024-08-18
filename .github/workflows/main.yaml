@@ -36,25 +36,6 @@ jobs:
       - name: Check AWS CLI version
         run: aws --version
 
-      - name: Check current authentication mode
-        id: check-auth-mode
-        run: |
-          # Check if authentication mode is API_AND_CONFIG_MAP
-          CURRENT_AUTH_MODE=$(aws eks describe-cluster --name poly-cluster --query 'cluster.authenticationConfig.authenticationMode' --output text)
-
-          if [ "$CURRENT_AUTH_MODE" != "API_AND_CONFIG_MAP" ]; then
-            echo "Authentication mode is not API_AND_CONFIG_MAP. Proceeding with update."
-            echo "update_needed=true" >> $GITHUB_ENV
-          else
-            echo "Authentication mode is already API_AND_CONFIG_MAP. No update needed."
-            echo "update_needed=false" >> $GITHUB_ENV
-          fi
-
-      - name: Update authentication mode
-        if: env.update_needed == 'true'
-        run: |
-          aws eks update-cluster-config --name poly-cluster --access-config authenticationMode=API_AND_CONFIG_MAP
-
       - name: Update kubeconfig
         run: |
           # Update kubeconfig to use the correct context
