@@ -5,6 +5,7 @@ resource "aws_eks_cluster" "example" {
   version  = "1.30"
   vpc_config {
     subnet_ids = var.subnet_ids
+    security_group_ids = [aws_security_group.eks_sg.id]
   }
 }
 
@@ -22,6 +23,7 @@ resource "aws_eks_node_group" "example" {
     desired_size = 1
   }
 }
+
 
 # IAM Roles and Policies for EKS
 resource "aws_iam_role" "eks_role" {
@@ -81,9 +83,6 @@ resource "aws_security_group" "eks_sg" {
   description = "Allow communication for EKS"
   vpc_id      = var.vpc_id
 }
-data "aws_eks_cluster" "example" {
-  name = aws_eks_cluster.example.name
-}
 
 
 
@@ -106,4 +105,29 @@ resource "aws_security_group_rule" "eks_node_outbound" {
 }
 
 
+resource "kubernetes_config_map" "aws_auth" {
+  depends_on = [
+    aws_eks_cluster.example,
+    aws_eks_node_group.example
+  ]
+
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    "mapRoles" = <<EOF
+- rolearn: arn:aws:iam::010526256256:role/eks-node-role
+  username: system:node:{{EC2PrivateDNSName}}
+  groups:
+    - system:bootstrappers
+    - system:nodes
+- rolearn: arn:aws:iam::010526256256:role/oidc_role
+  username: github-actions
+  groups:
+    - system:masters
+EOF
+  }
+}
 

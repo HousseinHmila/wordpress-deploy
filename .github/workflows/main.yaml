@@ -38,7 +38,7 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --name poly-cluster
+          aws eks update-kubeconfig --name poly-cluster --region eu-north-1
           kubectl config get-contexts
           kubectl config current-context
 
