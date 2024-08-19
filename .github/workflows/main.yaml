@@ -1,32 +1,12 @@
 name: Deploy to AWS
 
 on:
-  workflow_dispatch:
-    inputs:
-      trigger_job1:
-        description: "Trigger Job 1"
-        required: true
-        default: "false"
-        type: choice
-        options:
-          - true
-          - false
-      trigger_job2:
-        description: "Trigger Job 2"
-        required: true
-        default: "false"
-        type: choice
-        options:
-          - true
-          - false
-      trigger_all:
-        description: "Trigger All Jobs"
-        required: true
-        default: "false"
-        type: choice
-        options:
-          - true
-          - false
+#  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 permissions:
   id-token: write
@@ -34,7 +14,6 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ github.event.inputs.trigger_job1 == 'true' || github.event.inputs.trigger_all == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -97,7 +76,6 @@ jobs:
 
   destroy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.trigger_job2 == 'true' || github.event.inputs.trigger_all == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
