@@ -1,12 +1,32 @@
 name: Deploy to AWS
 
-#on:
-#  workflow_dispatch:
-#  push:
-#    branches:
-#      - main
 on:
-  workflow_dispatch: # Allows manual triggering of the workflow
+  workflow_dispatch:
+    inputs:
+      trigger_job1:
+        description: "Trigger Job 1"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - true
+          - false
+      trigger_job2:
+        description: "Trigger Job 2"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - true
+          - false
+      trigger_all:
+        description: "Trigger All Jobs"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - true
+          - false
 
 permissions:
   id-token: write
