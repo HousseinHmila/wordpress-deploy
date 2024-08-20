@@ -16,12 +16,12 @@ variable "rds_instance_id" {
 }
 
 variable "db_username" {
-  description = "Database username"
+  description = "SQL Database username"
 
 }
 
 variable "db_password" {
-  description = "Database password"
+  description = "SQL Database password"
   sensitive   = true
 
 }
