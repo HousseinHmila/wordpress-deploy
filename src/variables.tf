@@ -17,13 +17,13 @@ variable "rds_instance_id" {
 
 variable "db_username" {
   description = "Database username"
-  default     = "admin"
+
 }
 
 variable "db_password" {
   description = "Database password"
   sensitive   = true
-  default     = "admin123"
+
 }
 
 variable "instance_class" {
@@ -38,19 +38,19 @@ variable "allocated_storage" {
 
 variable "vpc_id" {
   description = "VPC ID"
-  default     = "vpc-023fd8093178c2892"
+  default     = "vpc-09ae72ba88b999730"
 }
 
 variable "subnet_ids" {
   description = "List of subnet IDs"
   type        = list(string)
   default = [
-    "subnet-0b70ec3f3d119018f",
-    "subnet-0f107057109be1a5a",
+    "subnet-061f6ffefa83d4812",
+    "subnet-0ebdfc227aff072fe",
   ]
 }
 variable "snapshot_identifier" {
   description = "Snapshot identifier"
   default     = "wordpress-snapshot"
-  
+
 }
