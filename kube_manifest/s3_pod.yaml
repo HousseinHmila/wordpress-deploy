@@ -9,14 +9,16 @@ spec:
     command: ["/bin/sh", "-c"]
     args:
       - |
-        # Install curl and tar
-        yum install -y curl tar
+        yum install wget
+        yum install unzip -y
+     
 
         # Download file from S3
-        curl -o /mnt/wordpress_files.tar.gz https://woedpress-snapshot.s3.eu-north-1.amazonaws.com/wordpress_files.tar.gz
-
+        wget https://woedpress-snapshot.s3.eu-north-1.amazonaws.com/wp.zip
         # Extract the tar.gz file
-        tar -xzvf /mnt/wordpress_files.tar.gz -C /mnt
+        unzip -o wp.zip
+
+        mv wordpress_files/* .
 
         # Keep the container running to access it if needed
         while true; do sleep 3600; done

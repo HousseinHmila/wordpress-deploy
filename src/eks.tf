@@ -22,6 +22,9 @@ resource "aws_eks_node_group" "example" {
     max_size     = 2
     desired_size = 1
   }
+  remote_access {
+    source_security_group_ids = [aws_security_group.eks_sg.id]
+  }
 }
 
 
@@ -103,6 +106,7 @@ resource "aws_security_group_rule" "eks_node_outbound" {
   security_group_id = aws_security_group.eks_sg.id
   cidr_blocks       = ["0.0.0.0/0"]
 }
+
 
 
 
