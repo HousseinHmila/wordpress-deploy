@@ -2,7 +2,7 @@
 
 variable "region" {
   description = "AWS region"
-  default     = "eu-north-1"
+  default     = "eu-west-3"
 }
 
 variable "eks_cluster_name" {
@@ -23,7 +23,7 @@ variable "db_username" {
 variable "db_password" {
   description = "Database password"
   sensitive   = true
-  default     = "strass22"
+  default     = "admin123"
 }
 
 variable "instance_class" {
