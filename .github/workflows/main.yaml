@@ -34,8 +34,10 @@ jobs:
 
       - name: Run Terraform
         run: |
+          echo "DB Username: $TF_VAR_db_username"
           cd src
           terraform init
+          terraform plan
           terraform apply -auto-approve
 
       - name: Upload Terraform state
