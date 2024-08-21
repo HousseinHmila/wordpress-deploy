@@ -65,8 +65,8 @@ jobs:
       - name: Display kubeconfig
         run: cat ~/.kube/config
 
-      - name: Deploy S3 pod
-        run: kubectl apply -f kube_manifest/s3_pod.yaml
+      #- name: Deploy S3 pod
+      #  run: kubectl apply -f kube_manifest/s3_pod.yaml
 
       - name: Install ArgoCD
         run: |
