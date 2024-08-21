@@ -34,10 +34,10 @@ jobs:
 
       - name: Run Terraform
         run: |
-          echo "DB Username: $TF_VAR_db_username"
+          echo ${{ secrets.DB_USERNAME }}
           cd src
           terraform init
-          terraform apply -auto-approve -var "db_username=$TF_VAR_db_username" -var "db_password=$TF_VAR_db_password"
+          terraform apply -auto-approve -var "db_username=${{ secrets.DB_USERNAME }}" -var "db_password=${{ secrets.DB_PASSWORD }}"
 
       - name: Upload Terraform state
         uses: actions/upload-artifact@v3
