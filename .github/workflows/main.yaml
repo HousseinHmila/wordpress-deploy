@@ -37,8 +37,7 @@ jobs:
           echo "DB Username: $TF_VAR_db_username"
           cd src
           terraform init
-          terraform plan
-          terraform apply -auto-approve
+          terraform apply -auto-approve -var "db_username=$TF_VAR_db_username" -var "db_password=$TF_VAR_db_password"
 
       - name: Upload Terraform state
         uses: actions/upload-artifact@v3
@@ -118,4 +117,4 @@ jobs:
         run: |
           cd src
           terraform init
-          terraform destroy -auto-approve
+          terraform destroy -auto-approve -var "db_username=$TF_VAR_db_username" -var "db_password=$TF_VAR_db_password"
