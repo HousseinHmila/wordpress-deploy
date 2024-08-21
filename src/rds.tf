@@ -9,7 +9,7 @@ resource "aws_db_instance" "example" {
   publicly_accessible                 = true
   skip_final_snapshot                 = true
   iam_database_authentication_enabled = true
-  snapshot_identifier                 = var.snapshot_identifier
+  #snapshot_identifier                 = var.snapshot_identifier
 
 
   # Other DB parameters

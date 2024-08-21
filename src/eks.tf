@@ -22,9 +22,6 @@ resource "aws_eks_node_group" "example" {
     max_size     = 2
     desired_size = 1
   }
-  remote_access {
-    source_security_group_ids = [aws_security_group.eks_sg.id]
-  }
 }
 
 
