@@ -84,7 +84,12 @@ jobs:
   destroy:
     runs-on: ubuntu-latest
     env:
-      TF_VAR_region: eu-north-1
+      TF_VAR_region: eu-west-3
+      TF_VAR_eks_cluster_name: poly-cluster
+      TF_VAR_rds_instance_id: wordpress-db
+      TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+      TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
