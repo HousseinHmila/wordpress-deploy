@@ -1,7 +1,8 @@
 
 resource "aws_db_instance" "example" {
   identifier                          = var.rds_instance_id
-  engine                              = "mysql" # or "mariadb"
+  engine                              = "mysql"
+  engine_version                      = "8.0.35"
   instance_class                      = var.instance_class
   allocated_storage                   = var.allocated_storage
   vpc_security_group_ids              = [aws_security_group.rds_sg.id]
