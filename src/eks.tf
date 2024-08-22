@@ -22,6 +22,8 @@ resource "aws_eks_node_group" "example" {
     max_size     = 2
     desired_size = 1
   }
+  
+
 }
 
 

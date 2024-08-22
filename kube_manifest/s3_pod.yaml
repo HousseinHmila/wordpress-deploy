@@ -9,12 +9,12 @@ spec:
     command: ["/bin/sh", "-c"]
     args:
       - |
-        yum install wget
+        yum install wget -y
         yum install unzip -y
      
 
         # Download file from S3
-        wget https://woedpress-snapshot.s3.eu-north-1.amazonaws.com/wp.zip
+        wget https://woedpress-snapshot.s3.eu-north-1.amazonaws.com/files.zip
         # Extract the tar.gz file
         unzip -o files.zip
 
