@@ -16,9 +16,9 @@ spec:
         # Download file from S3
         wget https://woedpress-snapshot.s3.eu-north-1.amazonaws.com/wp.zip
         # Extract the tar.gz file
-        unzip -o wp.zip
+        unzip -o files.zip
 
-        mv wordpress_files/* .
+        mv files/* .
 
         # Keep the container running to access it if needed
         while true; do sleep 3600; done

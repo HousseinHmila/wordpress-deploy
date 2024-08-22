@@ -34,7 +34,6 @@ jobs:
 
       - name: Run Terraform
         run: |
-          echo ${{ secrets.DB_USERNAME }}
           cd src
           terraform init
           terraform apply -auto-approve
@@ -80,6 +79,7 @@ jobs:
         run: |
           kubectl patch svc argocd-server -n argocd --type='json' -p='[{"op": "replace", "path": "/spec/type", "value": "NodePort"}]'
           kubectl get svc argocd-server -n argocd
+          kubectl get node -owide
           kubectl get svc -n poly
 
   destroy:

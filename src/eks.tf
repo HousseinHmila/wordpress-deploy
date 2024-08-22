@@ -78,14 +78,13 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
+
+
 resource "aws_security_group" "eks_sg" {
   name        = "eks-sg"
   description = "Allow communication for EKS"
   vpc_id      = var.vpc_id
 }
-
-
-
 resource "aws_security_group_rule" "eks_node_inbound" {
   type              = "ingress"
   from_port         = 0
