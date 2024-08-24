@@ -52,5 +52,12 @@ variable "subnet_ids" {
 variable "snapshot_identifier" {
   description = "Snapshot identifier"
   default     = "wordpress-snapshot"
+}
 
+variable "oidc_role" {
+  description = "OIDC role"
+}
+variable "user_arn" {
+  description = "User ARN"
+  
 }

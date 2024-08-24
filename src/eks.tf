@@ -1,123 +1,68 @@
-# Existing EKS Cluster and Node Group
-resource "aws_eks_cluster" "example" {
-  name     = var.eks_cluster_name
-  role_arn = aws_iam_role.eks_role.arn
-  version  = "1.30"
-  vpc_config {
-    subnet_ids         = var.subnet_ids
-    security_group_ids = [aws_security_group.eks_sg.id]
-  }
-}
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 18.0"
 
-resource "aws_eks_node_group" "example" {
-  cluster_name    = aws_eks_cluster.example.name
-  node_group_name = "worker-node"
-  node_role_arn   = aws_iam_role.eks_node_role.arn
-  subnet_ids      = var.subnet_ids
-  instance_types  = ["t3.medium"]
-  capacity_type   = "ON_DEMAND"
+  cluster_name    = var.eks_cluster_name
+  cluster_version = "1.30"
 
-  scaling_config {
-    min_size     = 1
-    max_size     = 2
-    desired_size = 1
-  }
-  remote_access {
-    ec2_ssh_key               = aws_key_pair.eks_key_pair.key_name
-    source_security_group_ids = [aws_security_group.eks_sg.id]
+  vpc_id     = var.vpc_id
+  subnet_ids = var.subnet_ids
+
+  # cluster_endpoint_private_access = true
+  cluster_endpoint_public_access = true
+
+  eks_managed_node_group_defaults = {
+    disk_size      = 8
+    instance_types = ["t2.medium"]
   }
 
+  # Add IAM user ARNs to aws-auth configmap to be able to manage EKS from the AWS website
+
+  # https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/README.md#input_create_aws_auth_configmap
+  # create_aws_auth_configmap = true
+
+  # /!\ https://github.com/terraform-aws-modules/terraform-aws-eks/issues/911#issuecomment-640702294
+  # https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/README.md#input_manage_aws_auth_configmap
+  manage_aws_auth_configmap = true
+  # https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/README.md#input_aws_auth_users
+  aws_auth_users = [
+    {
+      "userarn" : "${var.user_arn}",
+      "groups" : ["system:masters"]
+    }
+  ]
+  eks_managed_node_groups = {
+
+    worker-node = {
+      min_size     = 1
+      max_size     = 2
+      desired_size = 1
+
+      instance_types = ["t2.medium"]
+      capacity_type  = "ON_DEMAND" # SPOT
+    }
+  }
+
+  node_security_group_additional_rules = {
+    ingress_self_all = {
+      description = "Node to node all ports/protocols"
+      protocol    = "-1"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      self        = true
+    }
+
+    egress_all = {
+      description      = "Node all egress"
+      protocol         = "-1"
+      from_port        = 0
+      to_port          = 0
+      type             = "egress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+  }
+
 }
-
-resource "tls_private_key" "eks_key_pair" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-resource "aws_key_pair" "eks_key_pair" {
-  key_name   = "eks-key-pair"
-  public_key = tls_private_key.eks_key_pair.public_key_openssh
-}
-
-# IAM Roles and Policies for EKS
-resource "aws_iam_role" "eks_role" {
-  name = "eks-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          Service = "eks.amazonaws.com",
-        },
-      },
-    ],
-  })
-}
-
-resource "aws_iam_role" "eks_node_role" {
-  name = "eks-node-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          Service = "ec2.amazonaws.com",
-        },
-      },
-    ],
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "eks_node_policy" {
-  role       = aws_iam_role.eks_node_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "ec2_container_registry_policy" {
-  role       = aws_iam_role.eks_node_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_policy" {
-  role       = aws_iam_role.eks_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
-resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
-  role       = aws_iam_role.eks_node_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-
-
-resource "aws_security_group" "eks_sg" {
-  name        = "eks-sg"
-  description = "Allow communication for EKS"
-  vpc_id      = var.vpc_id
-}
-resource "aws_security_group_rule" "eks_node_inbound" {
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "tcp"
-  security_group_id = aws_security_group.eks_sg.id
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-resource "aws_security_group_rule" "eks_node_outbound" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "tcp"
-  security_group_id = aws_security_group.eks_sg.id
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-
-
-
-
 
